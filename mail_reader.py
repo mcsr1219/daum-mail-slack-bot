@@ -52,7 +52,7 @@ class MailReader:
     
     def get_unread_emails(self, folder: str = "INBOX", days: int = 1) -> List[Dict]:
         """
-        읽지 않은 이메일 불러오기
+        최근 이메일 불러오기 (읽은 것 포함)
         
         Args:
             folder: 메일함 이름 (기본값: INBOX)
@@ -66,14 +66,14 @@ class MailReader:
             # 메일함 선택
             status, mailbox = self.imap.select(folder)
             if status != "OK":
-                print(f"❌ 메일함 선택 실���: {folder}")
+                print(f"❌ 메일함 선택 실패: {folder}")
                 return emails
             
-            # 날짜 기준으로 검색
+            # 날짜 기준으로 검색 (읽은 것 포함)
             search_date = (datetime.now() - timedelta(days=days)).strftime("%d-%b-%Y")
             status, email_ids = self.imap.search(
                 None, 
-                f'UNSEEN SINCE "{search_date}"'
+                f'SINCE "{search_date}"'
             )
             
             if status != "OK":
@@ -95,7 +95,7 @@ class MailReader:
                     print(f"⚠️ 이메일 파싱 오류: {e}")
                     continue
             
-            print(f"✅ {len(emails)}개의 읽지 않은 이메일 로드됨")
+            print(f"✅ {len(emails)}개의 이메일 로드됨 (최근 {days}일)")
             return emails
         
         except Exception as e:
